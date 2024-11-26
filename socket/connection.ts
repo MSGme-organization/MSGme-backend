@@ -1,4 +1,8 @@
-import { saveMessage } from "../controller/messageController";
+import {
+  addReaction,
+  removeReaction,
+  saveMessage,
+} from "../controller/messageController";
 import { Socket } from "socket.io";
 
 const onConnection = (socket: Socket) => {
@@ -11,6 +15,38 @@ const onConnection = (socket: Socket) => {
       if (savedMessage) {
         socket.to(data.roomId).emit("message-receive", savedMessage);
         socket.emit("message-acknowledgment", savedMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  socket.on("message-reaction-add", async (data) => {
+    try {
+      const response = await addReaction(data.messageId, data.reactionObj);
+      if (response) {
+        socket
+          .to(data.roomId)
+          .emit(`reaction-add-${data.messageId}`, response.data.reactions);
+        socket.emit(
+          `reaction-add-ack-${data.messageId}`,
+          response.data.reactions
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  socket.on("message-reaction-remove", async (data) => {
+    try {
+      const response = await removeReaction(data.messageId, data.reactionObj);
+      if (response) {
+        socket.emit(
+          `reaction-remove-ack-${data.messageId}`,
+          response.data.reactions
+        );
+        socket
+          .to(data.roomId)
+          .emit(`reaction-remove-${data.messageId}`, response.data.reactions);
       }
     } catch (error) {
       console.log(error);

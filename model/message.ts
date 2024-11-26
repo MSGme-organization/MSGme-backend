@@ -1,25 +1,23 @@
 import mongoose from "mongoose";
+import { MessageDataType, ReactionType } from "../helper/zodValidation";
 
-export type Reaction = {
-  emoji: string;
-  userId: string;
-  timestamp: Date;
-};
-
-const reactionSchema = new mongoose.Schema<Reaction>({
+const reactionSchema = new mongoose.Schema<ReactionType>({
   emoji: { type: String, required: true },
+  username: { type: String, required: true },
   userId: { type: String, required: true },
+  avatar: { type: String },
   timestamp: { type: Date, default: Date.now },
 });
-const messageSchema = new mongoose.Schema(
+const messageSchema = new mongoose.Schema<MessageDataType>(
   {
     username: { type: String, require: true },
     fullName: { type: String, require: true },
     roomId: String,
+    userId: String,
     avatar: { type: String },
     message: { type: String, require: true },
     iv: { type: String, require: true },
-    repliedMsgId: { type: mongoose.Schema.Types.ObjectId },
+    repliedMsgId: { type: String },
     reactions: { type: [reactionSchema], require: false },
   },
   { timestamps: true }

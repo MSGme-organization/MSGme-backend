@@ -14,6 +14,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: "*" } });
 
 app.use(cors({ origin: "*" }));
+app.use(express.json());
 app.use("/api/v1",router)
 io.on("connection", onConnection);
 
