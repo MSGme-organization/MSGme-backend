@@ -3,9 +3,9 @@ import {
   removeReaction,
   saveMessage,
 } from "../controller/messageController";
-import { Socket } from "socket.io";
+import { Socket, Server } from "socket.io";
 
-const onConnection = (socket: Socket) => {
+const onConnection = (socket: Socket, io: Server) => {
   socket.on("message-send", async (data) => {
     try {
       const savedMessage = await saveMessage({
@@ -52,7 +52,9 @@ const onConnection = (socket: Socket) => {
       console.log(error);
     }
   });
-
+  socket.on("reorder-list-request", (roomId) => {
+    io.in(roomId).emit("reorder-friends", true);
+  });
   socket.on("join-room", (data) => {
     socket.join(data.id);
   });
