@@ -6,6 +6,7 @@ import {
   ReactionType,
   reactionValidate,
 } from "../helper/zodValidation";
+import { isValidObject } from "../helper/objectsValidation";
 
 export const saveMessage = async (messageData: MessageDataType) => {
   const validation = messageValidate.safeParse(messageData);
@@ -40,7 +41,7 @@ export const getMessageByRoom = async (req: Request, res: Response) => {
 
   try {
     const messages = await messageModel
-      .find({ roomId })
+      .find({ roomId, isDeleted: false })
       .populate({
         path: "repliedMsg",
         select: "username fullName avatar message iv reactions createdAt",
@@ -49,7 +50,7 @@ export const getMessageByRoom = async (req: Request, res: Response) => {
     res.status(200).json(messages);
   } catch (error) {
     console.error("Error fetching messages:", error);
-    res.status(500).json({ error: "Error fetching messages" });
+    res.status(500).json({ message: "Error fetching messages" });
   }
 };
 
@@ -140,5 +141,67 @@ export const removeReaction = async (
   } catch (error) {
     console.error("Error removing reaction:", error);
     throw error;
+  }
+};
+
+export const messageEdit = async (req: Request, res: Response) => {
+  try {
+    const { messageId } = req.params;
+    if (!messageId) {
+      res.status(400).json({ message: "Invalid or missing message ID" });
+      return;
+    }
+    const { message, iv } = req.body;
+    const validation = messageValidate
+      .pick({ message: true, iv: true })
+      .safeParse({ message, iv });
+    if (validation.success) {
+      const editedMessage = await messageModel
+        .findByIdAndUpdate(
+          messageId,
+          {
+            message: message,
+            iv: iv,
+          },
+          { runValidators: true, new: true }
+        )
+        .exec();
+      res.status(200).json({
+        message: "Message updated successfully",
+        data: editedMessage,
+      });
+      return;
+    }
+    res.status(400).json({ message: validation.error.errors });
+    return;
+  } catch (error) {
+    res.status(500).json({ message: "Error edit messages" });
+  }
+};
+
+export const messageDelete = async (req: Request, res: Response) => {
+  try {
+    const { messageId } = req.params;
+    if (!messageId) {
+      res.status(400).json({ error: "Invalid or missing message ID" });
+      return;
+    }
+
+    const deletedMessage = await messageModel
+      .findByIdAndUpdate(
+        messageId,
+        {
+          isDeleted: true,
+        },
+        { runValidators: true, new: true }
+      )
+      .exec();
+    if (isValidObject(deletedMessage)) {
+      res.status(200).json({ message: "Message delete successfully" });
+      return;
+    }
+    res.status(404).json({ message: "Message not found" });
+  } catch (error) {
+    res.status(500).json({ message: "Error edit messages" });
   }
 };

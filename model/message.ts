@@ -19,6 +19,9 @@ const messageSchema = new mongoose.Schema<MessageDataType>(
     iv: { type: String, require: true },
     repliedMsgId: { type: String },
     reactions: { type: [reactionSchema], require: false },
+    isDeleted: { type: Boolean, default: false },
+    isForward: { type: Boolean, default: false },
+    isEdited: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

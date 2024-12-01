@@ -14,15 +14,18 @@ export const reactionValidate = z.object({
 });
 
 export const messageValidate = z.object({
-  username: z.string({ required_error: "Username is required" }),
-  fullName: z.string({ required_error: "Full Name is required" }),
-  userId: z.string({ required_error: "User ID is not found" }),
-  roomId: z.string({ required_error: "Room ID is not found" }),
+  username: z.string({ required_error: "Username is required" }).trim(),
+  fullName: z.string({ required_error: "Full Name is required" }).trim(),
+  userId: z.string({ required_error: "User ID is not found" }).trim(),
+  roomId: z.string({ required_error: "Room ID is not found" }).trim(),
   avatar: z.string().optional(),
   message: z.string({ required_error: "Message is not found" }).trim(),
-  iv: z.string(),
+  iv: z.string().trim(),
   repliedMsgId: z.string().optional(),
   reactions: z.array(reactionValidate).optional().nullable(),
+  isDeleted: z.boolean().default(false),
+  isForward: z.boolean().default(false),
+  isEdited: z.boolean().default(false),
 });
 
 export type MessageDataType = z.infer<typeof messageValidate>;
