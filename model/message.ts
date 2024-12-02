@@ -17,7 +17,7 @@ const messageSchema = new mongoose.Schema<MessageDataType>(
     avatar: { type: String },
     message: { type: String, require: true },
     iv: { type: String, require: true },
-    repliedMsgId: { type: String },
+    repliedMsgId: { type: String, default: null },
     reactions: { type: [reactionSchema], require: false },
     isDeleted: { type: Boolean, default: false },
     isForward: { type: Boolean, default: false },

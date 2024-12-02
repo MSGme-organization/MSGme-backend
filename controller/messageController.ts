@@ -201,6 +201,7 @@ export const messageDelete = async (req: Request, res: Response) => {
       return;
     }
     res.status(404).json({ message: "Message not found" });
+    return;
   } catch (error) {
     res.status(500).json({ message: "Error edit messages" });
   }

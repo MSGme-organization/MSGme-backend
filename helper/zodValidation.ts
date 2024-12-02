@@ -14,14 +14,14 @@ export const reactionValidate = z.object({
 });
 
 export const messageValidate = z.object({
-  username: z.string({ required_error: "Username is required" }).trim(),
-  fullName: z.string({ required_error: "Full Name is required" }).trim(),
-  userId: z.string({ required_error: "User ID is not found" }).trim(),
-  roomId: z.string({ required_error: "Room ID is not found" }).trim(),
+  username: z.string({ required_error: "Username is required" }).trim().min(1),
+  fullName: z.string({ required_error: "Full Name is required" }).trim().min(1),
+  userId: z.string({ required_error: "User ID is not found" }).trim().min(1),
+  roomId: z.string({ required_error: "Room ID is not found" }).trim().min(1),
   avatar: z.string().optional(),
-  message: z.string({ required_error: "Message is not found" }).trim(),
-  iv: z.string().trim(),
-  repliedMsgId: z.string().optional(),
+  message: z.string({ required_error: "Message is not found" }).trim().min(1),
+  iv: z.string().trim().min(1),
+  repliedMsgId: z.string().nullable().optional(),
   reactions: z.array(reactionValidate).optional().nullable(),
   isDeleted: z.boolean().default(false),
   isForward: z.boolean().default(false),
