@@ -18,6 +18,6 @@ app.use(express.json());
 app.use("/api/v1", router);
 io.on("connection", (socket) => onConnection(socket, io));
 
-httpServer.listen(3000, () => {
-  console.log("server run on 3000");
+httpServer.listen(5000, () => {
+  console.log("server run on 5000");
 });

@@ -38,16 +38,34 @@ export const saveMessage = async (messageData: MessageDataType) => {
 
 export const getMessageByRoom = async (req: Request, res: Response) => {
   const { roomId } = req.params;
-
+  const { page = 0, limit = 20 } = req.query;
+  if (!roomId) {
+    res.status(400).json({ message: "Message not found" });
+  }
   try {
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+
     const messages = await messageModel
       .find({ roomId, isDeleted: false })
+      .sort({ createdAt:"desc"})
+      .skip(pageNumber * limitNumber)
+      .limit(limitNumber)
       .populate({
         path: "repliedMsg",
         select: "username fullName avatar message iv reactions createdAt",
       })
       .exec();
-    res.status(200).json(messages);
+
+    const totalMessages = await messageModel.countDocuments({
+      roomId,
+      isDeleted: false,
+    });
+    const hasNextPage = (pageNumber + 1) * limitNumber < totalMessages;
+
+    res
+      .status(200)
+      .json({ data: messages.reverse(), nextPage: hasNextPage ? pageNumber + 1 : null });
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ message: "Error fetching messages" });
